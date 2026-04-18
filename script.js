@@ -101,7 +101,8 @@ function handleDoctorLogin(event) {
     const doctorId = document.getElementById('doctorId').value;
     const password = document.getElementById('doctorPassword').value;
     
-    fetch('/api/doctors/login', {
+   // Replace 'https://your-backend-api.railway.app' with your actual deployed Java API URL
+fetch('https://your-backend-api.railway.app/api/doctors/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ doctorId: doctorId, password: password })
@@ -140,7 +141,8 @@ function handleDoctorRegister(event) {
     const specialty = document.getElementById('doctorSpecialty').value;
     const password = document.getElementById('newDoctorPassword').value;
     
-    fetch('/api/doctors/register', {
+ // Replace 'https://your-backend-api.railway.app' with your actual deployed Java API URL
+fetch('https://your-backend-api.railway.app/api/doctors/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -188,7 +190,8 @@ function handlePatientLogin(event) {
     const patientId = document.getElementById('patientId').value;
     const password = document.getElementById('patientPassword').value;
     
-    fetch('/api/patients/login', {
+   // Replace 'https://your-backend-api.railway.app' with your actual deployed Java API URL
+fetch('https://your-backend-api.railway.app/api/patients/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -232,7 +235,8 @@ function handlePatientRegister(event) {
     const age = document.getElementById('patientAge').value;
     const password = document.getElementById('newPatientPassword').value;
     
-    fetch('/api/patients/register', {
+// Replace 'https://your-backend-api.railway.app' with your actual deployed Java API URL
+fetch('https://your-backend-api.railway.app/api/patients/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
