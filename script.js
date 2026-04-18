@@ -1,8 +1,8 @@
-// Global session state
 let currentUser = null;
-let currentUserType = null; // 'patient' or 'doctor'
+let currentUserType = null;
 
-// Update date and time
+const API_BASE_URL = "https://your-backend-api-url.com";
+
 function updateDateTime() {
     const now = new Date();
     const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -14,11 +14,9 @@ function updateDateTime() {
     document.getElementById('dateTime').textContent = `Date: ${date}   Time: ${time}`;
 }
 
-// Update time every second
 setInterval(updateDateTime, 1000);
 updateDateTime();
 
-// Hide all menus
 function hideAllMenus() {
     document.querySelectorAll('.menu-section').forEach(el => {
         el.classList.add('hidden');
@@ -26,20 +24,17 @@ function hideAllMenus() {
     document.getElementById('message').classList.add('hidden');
 }
 
-// Show message
 function showMessage(text, type = 'info') {
     const messageEl = document.getElementById('message');
     messageEl.textContent = text;
     messageEl.className = `message ${type}`;
     messageEl.classList.remove('hidden');
     
-    // Auto-hide after 5 seconds
     setTimeout(() => {
         messageEl.classList.add('hidden');
     }, 5000);
 }
 
-// Update logout header visibility
 function updateLogoutHeader(show, userInfo = '') {
     const headerLogout = document.getElementById('headerWithLogout');
     if (show) {
@@ -49,8 +44,6 @@ function updateLogoutHeader(show, userInfo = '') {
         headerLogout.classList.add('hidden');
     }
 }
-
-// NAVIGATION FUNCTIONS
 
 function showDoctorMenu() {
     hideAllMenus();
@@ -84,8 +77,6 @@ function exitApp() {
     }
 }
 
-// DOCTOR FUNCTIONS
-
 function doctorLogin() {
     hideAllMenus();
     document.getElementById('doctorLoginForm').classList.remove('hidden');
@@ -101,8 +92,7 @@ function handleDoctorLogin(event) {
     const doctorId = document.getElementById('doctorId').value;
     const password = document.getElementById('doctorPassword').value;
     
-   // Replace 'https://your-backend-api.railway.app' with your actual deployed Java API URL
-fetch('https://your-backend-api.railway.app/api/doctors/login', {
+    fetch(`${API_BASE_URL}/api/doctors/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ doctorId: doctorId, password: password })
@@ -141,8 +131,7 @@ function handleDoctorRegister(event) {
     const specialty = document.getElementById('doctorSpecialty').value;
     const password = document.getElementById('newDoctorPassword').value;
     
- // Replace 'https://your-backend-api.railway.app' with your actual deployed Java API URL
-fetch('https://your-backend-api.railway.app/api/doctors/register', {
+    fetch(`${API_BASE_URL}/api/doctors/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -173,8 +162,6 @@ fetch('https://your-backend-api.railway.app/api/doctors/register', {
     });
 }
 
-// PATIENT FUNCTIONS
-
 function patientLogin() {
     hideAllMenus();
     document.getElementById('patientLoginForm').classList.remove('hidden');
@@ -190,8 +177,7 @@ function handlePatientLogin(event) {
     const patientId = document.getElementById('patientId').value;
     const password = document.getElementById('patientPassword').value;
     
-   // Replace 'https://your-backend-api.railway.app' with your actual deployed Java API URL
-fetch('https://your-backend-api.railway.app/api/patients/login', {
+    fetch(`${API_BASE_URL}/api/patients/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -235,8 +221,7 @@ function handlePatientRegister(event) {
     const age = document.getElementById('patientAge').value;
     const password = document.getElementById('newPatientPassword').value;
     
-// Replace 'https://your-backend-api.railway.app' with your actual deployed Java API URL
-fetch('https://your-backend-api.railway.app/api/patients/register', {
+    fetch(`${API_BASE_URL}/api/patients/register`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -269,8 +254,6 @@ fetch('https://your-backend-api.railway.app/api/patients/register', {
     });
 }
 
-// ADMIN FUNCTIONS
-
 function adminLogin() {
     hideAllMenus();
     document.getElementById('adminLoginForm').classList.remove('hidden');
@@ -291,8 +274,6 @@ function handleAdminLogin(event) {
     }, 2000);
 }
 
-// LOGOUT FUNCTION
-
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         currentUser = null;
@@ -303,8 +284,6 @@ function logout() {
         showMessage('Logged out successfully', 'success');
     }
 }
-
-// ===== PATIENT HOME PAGE =====
 
 function showPatientHome() {
     hideAllMenus();
@@ -326,7 +305,7 @@ function showPatientHome() {
 }
 
 function loadDoctorsList() {
-    fetch('/api/doctors/list')
+    fetch(`${API_BASE_URL}/api/doctors/list`)
         .then(res => res.json())
         .then(doctors => {
             const select = document.getElementById('doctorSelect');
@@ -381,7 +360,7 @@ function handleBookAppointment(event) {
         reason: reason
     };
     
-    fetch('/api/appointment/create', {
+    fetch(`${API_BASE_URL}/api/appointment/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -407,7 +386,7 @@ function handleBookAppointment(event) {
 }
 
 function loadPatientRequests() {
-    fetch(`/api/appointment/requests/patient?patientId=${currentUser.id}`)
+    fetch(`${API_BASE_URL}/api/appointment/requests/patient?patientId=${currentUser.id}`)
         .then(res => res.json())
         .then(requests => {
             displayPatientRequests(requests);
@@ -450,7 +429,7 @@ function displayPatientRequests(requests) {
 }
 
 function loadPatientAppointments() {
-    fetch(`/api/appointments/patient?patientId=${currentUser.id}`)
+    fetch(`${API_BASE_URL}/api/appointments/patient?patientId=${currentUser.id}`)
         .then(res => res.json())
         .then(appointments => {
             displayPatientAppointments(appointments);
@@ -507,8 +486,6 @@ function switchPatientTab(tabName) {
     }
 }
 
-// ===== DOCTOR HOME PAGE =====
-
 function showDoctorHome() {
     hideAllMenus();
     updateLogoutHeader(true, `👨‍⚕️ ${currentUser.name} (Doctor)`);
@@ -520,7 +497,7 @@ function showDoctorHome() {
 }
 
 function loadDoctorRequests() {
-    fetch(`/api/appointment/requests/doctor?doctorId=${currentUser.id}`)
+    fetch(`${API_BASE_URL}/api/appointment/requests/doctor?doctorId=${currentUser.id}`)
         .then(res => res.json())
         .then(requests => {
             displayDoctorRequests(requests);
@@ -569,7 +546,7 @@ function displayDoctorRequests(requests) {
 }
 
 function acceptAppointmentRequest(requestId) {
-    fetch('/api/appointment/accept', {
+    fetch(`${API_BASE_URL}/api/appointment/accept`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId: requestId })
@@ -592,7 +569,7 @@ function acceptAppointmentRequest(requestId) {
 
 function rejectAppointmentRequest(requestId) {
     if (confirm('Reject this appointment request?')) {
-        fetch('/api/appointment/reject', {
+        fetch(`${API_BASE_URL}/api/appointment/reject`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ requestId: requestId })
@@ -614,7 +591,7 @@ function rejectAppointmentRequest(requestId) {
 }
 
 function loadDoctorAppointments() {
-    fetch(`/api/appointments/doctor?doctorId=${currentUser.id}`)
+    fetch(`${API_BASE_URL}/api/appointments/doctor?doctorId=${currentUser.id}`)
         .then(res => res.json())
         .then(appointments => {
             displayDoctorAppointments(appointments);
@@ -671,7 +648,6 @@ function switchDoctorTab(tabName) {
     }
 }
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mainMenu').classList.remove('hidden');
 });
