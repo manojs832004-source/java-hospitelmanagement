@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Appointment System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="container">
+        <!-- Header with Logout Button -->
+        <div id="headerWithLogout" class="header-logout hidden">
+            <div class="logout-controls">
+                <span id="userInfo" class="user-info"></span>
+                <button class="btn btn-danger btn-small" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+        <div class="header">
+            <div class="header-content">
+                <h1>🏥 Doctor Appointment System</h1>
+                <p id="dateTime" class="datetime-display"></p>
+            </div>
+        </div>
+
+        <!-- PATIENT HOME PAGE -->
+        <div id="patientHome" class="menu-section hidden">
+            <div class="dashboard-card">
+                <div class="dashboard-header">
+                    <h2>👤 Patient Dashboard</h2>
+                    <p id="patientNameDisplay"></p>
+                </div>
+                <div class="dashboard-tabs">
+                    <button class="tab-btn active" onclick="switchPatientTab('bookAppointment')">📅 Book Appointment</button>
+                    <button class="tab-btn" onclick="switchPatientTab('myRequests')">📋 My Requests</button>
+                    <button class="tab-btn" onclick="switchPatientTab('myAppointments')">✅ My Appointments</button>
+                </div>
+                
+                <!-- Book Appointment Tab -->
+                <div id="bookAppointment" class="tab-content active">
+                    <h3>Book an Appointment</h3>
+                    <form onsubmit="handleBookAppointment(event)">
+                        <div class="form-group">
+                            <label for="doctorSelect">Select Doctor:</label>
+                            <select id="doctorSelect" required onchange="updateDoctorInfo()">
+                                <option value="">-- Choose a Doctor --</option>
+                            </select>
+                            <div id="doctorInfo" class="doctor-info"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentDate">Preferred Date:</label>
+                            <input type="date" id="appointmentDate" required min="">
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentTime">Preferred Time:</label>
+                            <input type="time" id="appointmentTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointmentReason">Reason for Appointment:</label>
+                            <textarea id="appointmentReason" rows="4" placeholder="Describe your symptoms or reason..." required></textarea>
+                        </div>
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-success">📤 Send Request</button>
+                            <button type="reset" class="btn btn-secondary">🔄 Clear</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- My Requests Tab -->
+                <div id="myRequests" class="tab-content hidden">
+                    <h3>Your Appointment Requests</h3>
+                    <div id="requestsList" class="requests-list">
+                        <p class="empty-message">No requests yet</p>
+                    </div>
+                </div>
+
+                <!-- My Appointments Tab -->
+                <div id="myAppointments" class="tab-content hidden">
+                    <h3>Your Appointments</h3>
+                    <div id="appointmentsList" class="appointments-list">
+                        <p class="empty-message">No appointments yet</p>
+                    </div>
+                </div>
+
+                <div class="button-group" style="margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DOCTOR HOME PAGE -->
+        <div id="doctorHome" class="menu-section hidden">
+            <div class="dashboard-card">
+                <div class="dashboard-header">
+                    <h2>👨‍⚕️ Doctor Dashboard</h2>
+                    <p id="doctorNameDisplay"></p>
+                </div>
+                <div class="dashboard-tabs">
+                    <button class="tab-btn active" onclick="switchDoctorTab('requests')">📬 Appointment Requests</button>
+                    <button class="tab-btn" onclick="switchDoctorTab('schedule')">📅 My Schedule</button>
+                </div>
+
+                <!-- Appointment Requests Tab -->
+                <div id="requests" class="tab-content active">
+                    <h3>Pending Appointment Requests</h3>
+                    <div id="doctorRequestsList" class="requests-list">
+                        <p class="empty-message">No pending requests</p>
+                    </div>
+                </div>
+
+                <!-- Schedule Tab -->
+                <div id="schedule" class="tab-content hidden">
+                    <h3>Your Appointments Schedule</h3>
+                    <div id="doctorScheduleList" class="appointments-list">
+                        <p class="empty-message">No appointments scheduled</p>
+                    </div>
+                </div>
+
+                <div class="button-group" style="margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="mainMenu" class="menu-section">
+            <div class="menu-card">
+                <h2>Welcome to Doctor Appointment System</h2>
+                <p>Please Choose An Appropriate Option</p>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="showDoctorMenu()">👨‍⚕️ For Doctors</button>
+                    <button class="btn btn-primary" onclick="showPatientMenu()">👤 For Patients</button>
+                    <button class="btn btn-primary" onclick="showAdminMenu()">🔐 For Admin</button>
+                    <button class="btn btn-danger" onclick="exitApp()">❌ Exit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor Menu -->
+        <div id="doctorMenu" class="menu-section hidden">
+            <div class="menu-card">
+                <h2>Welcome Doctor</h2>
+                <p>Please Choose An Appropriate Option</p>
+                <div class="button-group">
+                    <button class="btn btn-info" onclick="doctorLogin()">🔑 Login as Doctor</button>
+                    <button class="btn btn-success" onclick="doctorRegister()">📝 Register as Doctor</button>
+                    <button class="btn btn-secondary" onclick="backToMain()">⬅️ Back To Main Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Menu -->
+        <div id="patientMenu" class="menu-section hidden">
+            <div class="menu-card">
+                <h2>Welcome Patient</h2>
+                <p>Please Choose An Appropriate Option</p>
+                <div class="button-group">
+                    <button class="btn btn-info" onclick="patientLogin()">🔑 Login as Patient</button>
+                    <button class="btn btn-success" onclick="patientRegister()">📝 Register as Patient</button>
+                    <button class="btn btn-secondary" onclick="backToMain()">⬅️ Back To Main Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Menu -->
+        <div id="adminMenu" class="menu-section hidden">
+            <div class="menu-card">
+                <h2>Admin Panel</h2>
+                <p>Please Choose An Appropriate Option</p>
+                <div class="button-group">
+                    <button class="btn btn-info" onclick="adminLogin()">🔑 Admin Login</button>
+                    <button class="btn btn-secondary" onclick="backToMain()">⬅️ Back To Main Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor Login Form -->
+        <div id="doctorLoginForm" class="menu-section hidden">
+            <div class="form-card">
+                <h2>Doctor Login</h2>
+                <form onsubmit="handleDoctorLogin(event)">
+                    <div class="form-group">
+                        <label for="doctorId">Doctor ID:</label>
+                        <input type="text" id="doctorId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorPassword">Password:</label>
+                        <input type="password" id="doctorPassword" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success">Login</button>
+                        <button type="button" class="btn btn-secondary" onclick="showDoctorMenu()">Back</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Doctor Register Form -->
+        <div id="doctorRegisterForm" class="menu-section hidden">
+            <div class="form-card">
+                <h2>Doctor Registration</h2>
+                <form onsubmit="handleDoctorRegister(event)">
+                    <div class="form-group">
+                        <label for="newDoctorId">Doctor ID:</label>
+                        <input type="text" id="newDoctorId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorName">Name:</label>
+                        <input type="text" id="doctorName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="doctorSpecialty">Specialty:</label>
+                        <input type="text" id="doctorSpecialty" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newDoctorPassword">Password:</label>
+                        <input type="password" id="newDoctorPassword" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success">Register</button>
+                        <button type="button" class="btn btn-secondary" onclick="showDoctorMenu()">Back</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Patient Login Form -->
+        <div id="patientLoginForm" class="menu-section hidden">
+            <div class="form-card">
+                <h2>Patient Login</h2>
+                <form onsubmit="handlePatientLogin(event)">
+                    <div class="form-group">
+                        <label for="patientId">Patient ID:</label>
+                        <input type="text" id="patientId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientPassword">Password:</label>
+                        <input type="password" id="patientPassword" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success">Login</button>
+                        <button type="button" class="btn btn-secondary" onclick="showPatientMenu()">Back</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Patient Register Form -->
+        <div id="patientRegisterForm" class="menu-section hidden">
+            <div class="form-card">
+                <h2>Patient Registration</h2>
+                <form onsubmit="handlePatientRegister(event)">
+                    <div class="form-group">
+                        <label for="newPatientId">Patient ID:</label>
+                        <input type="text" id="newPatientId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientName">Name:</label>
+                        <input type="text" id="patientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAge">Age:</label>
+                        <input type="number" id="patientAge" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPatientPassword">Password:</label>
+                        <input type="password" id="newPatientPassword" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success">Register</button>
+                        <button type="button" class="btn btn-secondary" onclick="showPatientMenu()">Back</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Login Form -->
+        <div id="adminLoginForm" class="menu-section hidden">
+            <div class="form-card">
+                <h2>Admin Login</h2>
+                <form onsubmit="handleAdminLogin(event)">
+                    <div class="form-group">
+                        <label for="adminId">Admin ID:</label>
+                        <input type="text" id="adminId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">Password:</label>
+                        <input type="password" id="adminPassword" required>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-success">Login</button>
+                        <button type="button" class="btn btn-secondary" onclick="showAdminMenu()">Back</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Message Display -->
+        <div id="message" class="message hidden"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

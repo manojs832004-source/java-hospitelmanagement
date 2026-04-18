@@ -1,0 +1,1 @@
+import java.sql.*; public class TestDB { public static void main(String[] args) { try (Connection c = DatabaseConnection.getConnection(); Statement s = c.createStatement(); ResultSet rs = s.executeQuery("SELECT * FROM Doctors")) { while(rs.next()) System.out.println(rs.getString("doctor_id") + " : " + rs.getString("name")); } catch(Exception e){} } }
