@@ -1,9 +1,12 @@
+// Global session state
 let currentUser = null;
-let currentUserType = null;
+let currentUserType = null; // 'patient' or 'doctor'
 
-const API_BASE_URL = "https://your-backend-api-url.com";
-
+// Update date and time
 function updateDateTime() {
+    const dateTimeEl = document.getElementById('dateTime');
+    if (!dateTimeEl) return; // Element doesn't exist, skip
+    
     const now = new Date();
     const dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
     const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
@@ -11,12 +14,14 @@ function updateDateTime() {
     const date = now.toLocaleDateString('en-US', dateOptions);
     const time = now.toLocaleTimeString('en-US', timeOptions);
     
-    document.getElementById('dateTime').textContent = `Date: ${date}   Time: ${time}`;
+    dateTimeEl.textContent = `Date: ${date}   Time: ${time}`;
 }
 
+// Update time every second
 setInterval(updateDateTime, 1000);
 updateDateTime();
 
+// Hide all menus
 function hideAllMenus() {
     document.querySelectorAll('.menu-section').forEach(el => {
         el.classList.add('hidden');
@@ -24,17 +29,20 @@ function hideAllMenus() {
     document.getElementById('message').classList.add('hidden');
 }
 
+// Show message
 function showMessage(text, type = 'info') {
     const messageEl = document.getElementById('message');
     messageEl.textContent = text;
     messageEl.className = `message ${type}`;
     messageEl.classList.remove('hidden');
     
+    // Auto-hide after 5 seconds
     setTimeout(() => {
         messageEl.classList.add('hidden');
     }, 5000);
 }
 
+// Update logout header visibility
 function updateLogoutHeader(show, userInfo = '') {
     const headerLogout = document.getElementById('headerWithLogout');
     if (show) {
@@ -44,6 +52,8 @@ function updateLogoutHeader(show, userInfo = '') {
         headerLogout.classList.add('hidden');
     }
 }
+
+// NAVIGATION FUNCTIONS
 
 function showDoctorMenu() {
     hideAllMenus();
@@ -77,6 +87,8 @@ function exitApp() {
     }
 }
 
+// DOCTOR FUNCTIONS
+
 function doctorLogin() {
     hideAllMenus();
     document.getElementById('doctorLoginForm').classList.remove('hidden');
@@ -92,7 +104,7 @@ function handleDoctorLogin(event) {
     const doctorId = document.getElementById('doctorId').value;
     const password = document.getElementById('doctorPassword').value;
     
-    fetch(`${API_BASE_URL}/api/doctors/login`, {
+    fetch('/api/doctors/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ doctorId: doctorId, password: password })
@@ -131,7 +143,7 @@ function handleDoctorRegister(event) {
     const specialty = document.getElementById('doctorSpecialty').value;
     const password = document.getElementById('newDoctorPassword').value;
     
-    fetch(`${API_BASE_URL}/api/doctors/register`, {
+    fetch('/api/doctors/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -162,6 +174,8 @@ function handleDoctorRegister(event) {
     });
 }
 
+// PATIENT FUNCTIONS
+
 function patientLogin() {
     hideAllMenus();
     document.getElementById('patientLoginForm').classList.remove('hidden');
@@ -177,7 +191,7 @@ function handlePatientLogin(event) {
     const patientId = document.getElementById('patientId').value;
     const password = document.getElementById('patientPassword').value;
     
-    fetch(`${API_BASE_URL}/api/patients/login`, {
+    fetch('/api/patients/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -221,7 +235,7 @@ function handlePatientRegister(event) {
     const age = document.getElementById('patientAge').value;
     const password = document.getElementById('newPatientPassword').value;
     
-    fetch(`${API_BASE_URL}/api/patients/register`, {
+    fetch('/api/patients/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -254,6 +268,8 @@ function handlePatientRegister(event) {
     });
 }
 
+// ADMIN FUNCTIONS
+
 function adminLogin() {
     hideAllMenus();
     document.getElementById('adminLoginForm').classList.remove('hidden');
@@ -274,6 +290,8 @@ function handleAdminLogin(event) {
     }, 2000);
 }
 
+// LOGOUT FUNCTION
+
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         currentUser = null;
@@ -284,6 +302,8 @@ function logout() {
         showMessage('Logged out successfully', 'success');
     }
 }
+
+// ===== PATIENT HOME PAGE =====
 
 function showPatientHome() {
     hideAllMenus();
@@ -305,10 +325,11 @@ function showPatientHome() {
 }
 
 function loadDoctorsList() {
-    fetch(`${API_BASE_URL}/api/doctors/list`)
+    fetch('/api/doctors/list')
         .then(res => res.json())
         .then(doctors => {
             const select = document.getElementById('doctorSelect');
+            if (!select) return;
             select.innerHTML = '<option value="">-- Choose a Doctor --</option>';
             doctors.forEach(doc => {
                 const option = document.createElement('option');
@@ -360,7 +381,7 @@ function handleBookAppointment(event) {
         reason: reason
     };
     
-    fetch(`${API_BASE_URL}/api/appointment/create`, {
+    fetch('/api/appointment/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -386,19 +407,21 @@ function handleBookAppointment(event) {
 }
 
 function loadPatientRequests() {
-    fetch(`${API_BASE_URL}/api/appointment/requests/patient?patientId=${currentUser.id}`)
+    fetch(`/api/appointment/requests/patient?patientId=${currentUser.id}`)
         .then(res => res.json())
         .then(requests => {
             displayPatientRequests(requests);
         })
         .catch(err => {
             console.error('Error loading requests:', err);
-            document.getElementById('requestsList').innerHTML = '<p class="empty-message">Error loading requests</p>';
+            const listDiv = document.getElementById('requestsList');
+            if (listDiv) listDiv.innerHTML = '<p class="empty-message">Error loading requests</p>';
         });
 }
 
 function displayPatientRequests(requests) {
     const listDiv = document.getElementById('requestsList');
+    if (!listDiv) return;
     
     if (requests.length === 0) {
         listDiv.innerHTML = '<p class="empty-message">No appointment requests yet</p>';
@@ -408,7 +431,7 @@ function displayPatientRequests(requests) {
     listDiv.innerHTML = requests.map(req => `
         <div class="appointment-card request">
             <div class="appointment-header">
-                <h4>💬 ${req.doctorName}</h4>
+                <h4>💬 ${req.doctorName || 'Unknown'}</h4>
                 <span class="status-badge status-${req.status.toLowerCase()}">${req.status}</span>
             </div>
             <div class="appointment-details">
@@ -429,19 +452,21 @@ function displayPatientRequests(requests) {
 }
 
 function loadPatientAppointments() {
-    fetch(`${API_BASE_URL}/api/appointments/patient?patientId=${currentUser.id}`)
+    fetch(`/api/appointments/patient?patientId=${currentUser.id}`)
         .then(res => res.json())
         .then(appointments => {
             displayPatientAppointments(appointments);
         })
         .catch(err => {
             console.error('Error loading appointments:', err);
-            document.getElementById('appointmentsList').innerHTML = '<p class="empty-message">Error loading appointments</p>';
+            const listDiv = document.getElementById('appointmentsList');
+            if (listDiv) listDiv.innerHTML = '<p class="empty-message">Error loading appointments</p>';
         });
 }
 
 function displayPatientAppointments(appointments) {
     const listDiv = document.getElementById('appointmentsList');
+    if (!listDiv) return;
     
     if (appointments.length === 0) {
         listDiv.innerHTML = '<p class="empty-message">No confirmed appointments yet</p>';
@@ -451,7 +476,7 @@ function displayPatientAppointments(appointments) {
     listDiv.innerHTML = appointments.map(apt => `
         <div class="appointment-card appointment">
             <div class="appointment-header">
-                <h4>✅ ${apt.doctorName}</h4>
+                <h4>✅ ${apt.doctorName || 'Unknown'}</h4>
                 <span class="status-badge status-${apt.status.toLowerCase()}">${apt.status}</span>
             </div>
             <div class="appointment-details">
@@ -471,11 +496,13 @@ function displayPatientAppointments(appointments) {
 function switchPatientTab(tabName) {
     document.querySelectorAll('#patientHome .tab-content').forEach(tab => {
         tab.classList.remove('active');
+        tab.classList.add('hidden'); // Also hide the tab elements
     });
     document.querySelectorAll('#patientHome .tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
+    document.getElementById(tabName).classList.remove('hidden'); // Show the active tab element
     document.getElementById(tabName).classList.add('active');
     event.currentTarget.classList.add('active');
     
@@ -485,6 +512,8 @@ function switchPatientTab(tabName) {
         loadPatientAppointments();
     }
 }
+
+// ===== DOCTOR HOME PAGE =====
 
 function showDoctorHome() {
     hideAllMenus();
@@ -497,19 +526,21 @@ function showDoctorHome() {
 }
 
 function loadDoctorRequests() {
-    fetch(`${API_BASE_URL}/api/appointment/requests/doctor?doctorId=${currentUser.id}`)
+    fetch(`/api/appointment/requests/doctor?doctorId=${currentUser.id}`)
         .then(res => res.json())
         .then(requests => {
             displayDoctorRequests(requests);
         })
         .catch(err => {
             console.error('Error loading requests:', err);
-            document.getElementById('doctorRequestsList').innerHTML = '<p class="empty-message">Error loading requests</p>';
+            const listDiv = document.getElementById('doctorRequestsList');
+            if (listDiv) listDiv.innerHTML = '<p class="empty-message">Error loading requests</p>';
         });
 }
 
 function displayDoctorRequests(requests) {
     const listDiv = document.getElementById('doctorRequestsList');
+    if (!listDiv) return;
     
     const pendingRequests = requests.filter(req => req.status.toLowerCase() === 'pending');
     
@@ -521,7 +552,7 @@ function displayDoctorRequests(requests) {
     listDiv.innerHTML = pendingRequests.map(req => `
         <div class="appointment-card request">
             <div class="appointment-header">
-                <h4>👤 ${req.patientName}</h4>
+                <h4>👤 ${req.patientName || 'Unknown'}</h4>
                 <span class="status-badge status-pending">PENDING</span>
             </div>
             <div class="appointment-details">
@@ -546,7 +577,7 @@ function displayDoctorRequests(requests) {
 }
 
 function acceptAppointmentRequest(requestId) {
-    fetch(`${API_BASE_URL}/api/appointment/accept`, {
+    fetch('/api/appointment/accept', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId: requestId })
@@ -555,8 +586,10 @@ function acceptAppointmentRequest(requestId) {
     .then(response => {
         if (response.success) {
             showMessage('✅ Appointment request accepted!', 'success');
-            loadDoctorRequests();
-            loadDoctorAppointments();
+            setTimeout(() => {
+                loadDoctorRequests();
+                loadDoctorAppointments();
+            }, 500);
         } else {
             showMessage('Error accepting request', 'error');
         }
@@ -569,7 +602,7 @@ function acceptAppointmentRequest(requestId) {
 
 function rejectAppointmentRequest(requestId) {
     if (confirm('Reject this appointment request?')) {
-        fetch(`${API_BASE_URL}/api/appointment/reject`, {
+        fetch('/api/appointment/reject', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ requestId: requestId })
@@ -591,19 +624,21 @@ function rejectAppointmentRequest(requestId) {
 }
 
 function loadDoctorAppointments() {
-    fetch(`${API_BASE_URL}/api/appointments/doctor?doctorId=${currentUser.id}`)
+    fetch(`/api/appointments/doctor?doctorId=${currentUser.id}`)
         .then(res => res.json())
         .then(appointments => {
             displayDoctorAppointments(appointments);
         })
         .catch(err => {
             console.error('Error loading appointments:', err);
-            document.getElementById('doctorScheduleList').innerHTML = '<p class="empty-message">Error loading appointments</p>';
+            const listDiv = document.getElementById('doctorScheduleList');
+            if (listDiv) listDiv.innerHTML = '<p class="empty-message">Error loading appointments</p>';
         });
 }
 
 function displayDoctorAppointments(appointments) {
     const listDiv = document.getElementById('doctorScheduleList');
+    if (!listDiv) return;
     
     if (appointments.length === 0) {
         listDiv.innerHTML = '<p class="empty-message">No scheduled appointments</p>';
@@ -613,7 +648,7 @@ function displayDoctorAppointments(appointments) {
     listDiv.innerHTML = appointments.map(apt => `
         <div class="appointment-card appointment">
             <div class="appointment-header">
-                <h4>👤 ${apt.patientName}</h4>
+                <h4>👤 ${apt.patientName || 'Unknown'}</h4>
                 <span class="status-badge status-${apt.status.toLowerCase()}">${apt.status}</span>
             </div>
             <div class="appointment-details">
@@ -633,11 +668,13 @@ function displayDoctorAppointments(appointments) {
 function switchDoctorTab(tabName) {
     document.querySelectorAll('#doctorHome .tab-content').forEach(tab => {
         tab.classList.remove('active');
+        tab.classList.add('hidden'); // Fix tab switching visibility issue
     });
     document.querySelectorAll('#doctorHome .tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
+    document.getElementById(tabName).classList.remove('hidden'); // Show selected tab content
     document.getElementById(tabName).classList.add('active');
     event.currentTarget.classList.add('active');
     
@@ -648,6 +685,7 @@ function switchDoctorTab(tabName) {
     }
 }
 
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mainMenu').classList.remove('hidden');
 });

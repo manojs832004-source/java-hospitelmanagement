@@ -429,24 +429,43 @@ public class WebServer {
         private java.util.Map<String, String> parseJson(String json) {
             java.util.Map<String, String> map = new java.util.HashMap<>();
             try {
-                // Remove leading/trailing braces
                 json = json.trim();
-                if (json.startsWith("{")) json = json.substring(1);
-                if (json.endsWith("}")) json = json.substring(0, json.length() - 1);
+                if (!json.startsWith("{") || !json.endsWith("}")) {
+                    return map;
+                }
                 
-                // Split by comma but be careful with colons
-                String[] pairs = json.split("\",\"");
-                for (String pair : pairs) {
-                    pair = pair.replace("\"", "").trim();
-                    int colonPos = pair.indexOf(":");
-                    if (colonPos > 0) {
-                        String key = pair.substring(0, colonPos).trim();
-                        String value = pair.substring(colonPos + 1).trim();
+                // Remove braces
+                json = json.substring(1, json.length() - 1).trim();
+                if (json.isEmpty()) {
+                    return map;
+                }
+                
+                // Split by comma, but need to handle escaped quotes
+                String[] parts = json.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                
+                for (String part : parts) {
+                    part = part.trim();
+                    int colonIndex = part.indexOf(':');
+                    if (colonIndex > 0) {
+                        String key = part.substring(0, colonIndex).trim();
+                        String value = part.substring(colonIndex + 1).trim();
+                        
+                        // Remove quotes from key
+                        if (key.startsWith("\"") && key.endsWith("\"")) {
+                            key = key.substring(1, key.length() - 1);
+                        }
+                        
+                        // Remove quotes from value if it's a string
+                        if (value.startsWith("\"") && value.endsWith("\"")) {
+                            value = value.substring(1, value.length() - 1);
+                            // Unescape quotes and special chars
+                            value = value.replace("\\\"", "\"").replace("\\n", "\n").replace("\\r", "\r");
+                        }
+                        
                         map.put(key, value);
                     }
                 }
             } catch (Exception e) {
-                // Return empty map on parse error
                 map.clear();
             }
             return map;
